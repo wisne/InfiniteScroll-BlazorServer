@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject IJSRuntime JsRuntime
+@implements IDisposable
 <ul class="list-group">
 
     @foreach (var Pet in Pets)
@@ -98,6 +99,12 @@
         IsLoading = false;
         await JsRuntime.InvokeVoidAsync("ScrollList.RemoveListener");
         StateHasChanged();
+    }
+
+
+    public void Dispose()
+    {
+        JsRuntime.InvokeVoidAsync("ScrollList.RemoveListener");
     }
 
 }
