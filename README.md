@@ -1,2 +1,2 @@
-# InfiniteScroll - Blazor
- Infinite Scroll demo for blazor
+# InfiniteScroll - Blazor Server
+ Infinite Scroll demo for blazor Server
