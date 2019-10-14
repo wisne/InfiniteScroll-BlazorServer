@@ -16,24 +16,15 @@
     <app>
         @(await Html.RenderComponentAsync<App>(RenderMode.ServerPrerendered))
     </app>
-
+    <script src="/js/InfiniteScroll.js"></script>
     <script>
-        window.InfiniteScroll = {
-            Init: function (eleId, DotNetRef) {
-                document.addEventListener('scroll', function () {
-                    var element = document.getElementById(eleId);
-                    var bounding = element.getBoundingClientRect();
-                    if (
-                        bounding.top >= 0 &&
-                        bounding.left >= 0 &&
-                        bounding.right <= (window.innerWidth || element.clientWidth) &&
-                        bounding.bottom <= (window.innerHeight || element.clientHeight)
-                    ) {
-                        console.log('In the viewport, loading more!');
-                        DotNetRef.invokeMethodAsync("LoadMore");
-                    }
-                });
-            }
+        window.ScrollList = {
+            Init: function (ele, ref) {
+                window.ScrollList.ifs = new InfiniteScroll(ele, ref);
+            },
+            RemoveListener: function () {
+                window.ScrollList.ifs.RemoveListener();
+            }             
         }
     </script>
     <script src="_framework/blazor.server.js"></script>

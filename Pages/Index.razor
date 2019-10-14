@@ -8,7 +8,16 @@
     }
 
 </ul>
-<div id="list-end">
+
+
+@if (StopLoading)
+{
+    <div>
+        <h4>End Of List</h4>
+    </div>
+}
+<div id="list-end" class="mt-5 mb-5 p-5">
+    <p></p>
     @if (IsLoading)
     {
         <div class="d-flex justify-content-center">
@@ -17,6 +26,7 @@
             </div>
         </div>
     }
+
 </div>
 @code{
 
@@ -31,6 +41,12 @@
 
     bool IsLoading { get; set; } = false;
 
+    int PageSize = 30;
+
+    int PageNumber = 0;
+
+    bool StopLoading = false;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -42,7 +58,7 @@
 
     protected async Task InitJsListenerAsync()
     {
-        await JsRuntime.InvokeVoidAsync("InfiniteScroll.Init", "list-end", DotNetObjectReference.Create(this));
+        await JsRuntime.InvokeVoidAsync("ScrollList.Init", "list-end", DotNetObjectReference.Create(this));
     }
 
     [JSInvokable]
@@ -51,16 +67,37 @@
         if (!IsLoading)
         {
             IsLoading = true;
+
             StateHasChanged();
-            await Task.Delay(5000);
-            for (int i = 0; i < 50; i++)
+
+            await Task.Delay(1000);
+
+            for (int i = 0; i < PageSize; i++)
             {
                 Pets.Add((PetNames[rnd.Next(PetNames.Length)], rnd.Next(3, 15)));
             }
+
+            PageNumber++;
+
             IsLoading = false;
+
             StateHasChanged();
+
+
+            //at the end of pages or results stop loading anymore
+            if (PageNumber > 4)
+            {
+                await StopListener();
+            }
         }
     }
 
+    public async Task StopListener()
+    {
+        StopLoading = true;
+        IsLoading = false;
+        await JsRuntime.InvokeVoidAsync("ScrollList.RemoveListener");
+        StateHasChanged();
+    }
 
 }
