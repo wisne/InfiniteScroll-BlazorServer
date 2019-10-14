@@ -1,0 +1,66 @@
+﻿@page "/"
+@inject IJSRuntime JsRuntime
+<ul class="list-group">
+
+    @foreach (var Pet in Pets)
+    {
+        <li class="list-group-item">@Pet.Name, @Pet.Age</li>
+    }
+
+</ul>
+<div id="list-end">
+    @if (IsLoading)
+    {
+        <div class="d-flex justify-content-center">
+            <div class="spinner-grow" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+    }
+</div>
+@code{
+
+    Random rnd = new Random();
+    string[] PetNames = { "Rufus", "Bear", "Dakota", "Fido",
+                          "Vanya", "Samuel", "Koani", "Volodya",
+                          "Prince", "Yiska", "Maggie", "Penny", "Saya", "Princess",
+                            "Abby", "Laila", "Sadie", "Olivia",
+                            "Starlight", "Talla" };
+
+    List<(string Name, int Age)> Pets = new List<(string Name, int Age)>();
+
+    bool IsLoading { get; set; } = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadMore();
+            await InitJsListenerAsync();
+        }
+    }
+
+    protected async Task InitJsListenerAsync()
+    {
+        await JsRuntime.InvokeVoidAsync("InfiniteScroll.Init", "list-end", DotNetObjectReference.Create(this));
+    }
+
+    [JSInvokable]
+    public async Task LoadMore()
+    {
+        if (!IsLoading)
+        {
+            IsLoading = true;
+            StateHasChanged();
+            await Task.Delay(5000);
+            for (int i = 0; i < 50; i++)
+            {
+                Pets.Add((PetNames[rnd.Next(PetNames.Length)], rnd.Next(3, 15)));
+            }
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+
+}

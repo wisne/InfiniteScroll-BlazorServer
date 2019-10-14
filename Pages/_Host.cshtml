@@ -1,0 +1,42 @@
+﻿@page "/"
+@namespace InfiniteScroll.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InfiniteScroll</title>
+    <base href="~/" />
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link href="css/site.css" rel="stylesheet" />
+</head>
+<body>
+    <app>
+        @(await Html.RenderComponentAsync<App>(RenderMode.ServerPrerendered))
+    </app>
+
+    <script>
+        window.InfiniteScroll = {
+            Init: function (eleId, DotNetRef) {
+                document.addEventListener('scroll', function () {
+                    var element = document.getElementById(eleId);
+                    var bounding = element.getBoundingClientRect();
+                    if (
+                        bounding.top >= 0 &&
+                        bounding.left >= 0 &&
+                        bounding.right <= (window.innerWidth || element.clientWidth) &&
+                        bounding.bottom <= (window.innerHeight || element.clientHeight)
+                    ) {
+                        console.log('In the viewport, loading more!');
+                        DotNetRef.invokeMethodAsync("LoadMore");
+                    }
+                });
+            }
+        }
+    </script>
+    <script src="_framework/blazor.server.js"></script>
+
+</body>
+</html>
